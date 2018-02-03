@@ -45,7 +45,7 @@ export default class Jampler extends React.Component {
       if  ((data[0] == 144) && (data[1] < 52)){
 
       	console.log ('MIDI data', data)
-      	previous_state = this.state
+      	let previous_state = this.state
         // this.setState({currentPatch: (data[1] - 36)})
         // this.set_current_patch()
 	      // # MIDI data [144, 63, 73]
