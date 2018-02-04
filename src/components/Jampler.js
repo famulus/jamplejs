@@ -2,14 +2,18 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Patch from './Patch.js';
 import {Howl, Howler} from 'howler'
+import Set from 'set'
 // import sound from '../../sounds/test.mp3';
 
 
 export default class Jampler extends React.Component {
 
-	componentDidMount(){
-		
+	constructor(props){
+    super(props)
+    this.state = { note_on_set: Set([]) }
+  }
 
+	componentDidMount(){
 
 		const sound = new Howl({
 		  src: ['https://archive.org/download/JoshJones-BreakBottles-OriginalDemomp3/Josh-BreakBottles.mp3'],
@@ -20,7 +24,6 @@ export default class Jampler extends React.Component {
 
 
 		const onMIDISuccess = (midiAccess) => {
-			console.log("okok")
       // when we get a succesful response, run this code
       //  this is our raw MIDI data, inputs, outputs, and sysex status
       const inputs = midiAccess.inputs.values()
@@ -58,7 +61,7 @@ export default class Jampler extends React.Component {
 
 
     if (navigator.requestMIDIAccess){
-    	navigator.requestMIDIAccess({sysex: false}).then(onMIDISuccess, onMIDIFailure)
+			navigator.requestMIDIAccess({sysex: false}).then(onMIDISuccess, onMIDIFailure)
     }
     else{
     	alert ('No MIDI support in your browser.')
