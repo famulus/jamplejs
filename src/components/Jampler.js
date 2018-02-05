@@ -1,16 +1,19 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Patch from './Patch.js';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import Patch from './Patch.js'
 import {Howl, Howler} from 'howler'
 import Set from 'set'
-// import sound from '../../sounds/test.mp3';
 
 
 export default class Jampler extends React.Component {
 
 	constructor(props){
     super(props)
-    this.state = { note_on_set: Set([]) }
+    this.state = { 
+      note_on_set: new Set([]),
+      current_howler_play_id: 0,
+      player_ids:[]
+    }
   }
 
 	componentDidMount(){
@@ -18,9 +21,10 @@ export default class Jampler extends React.Component {
 		const sound = new Howl({
 		  src: ['https://archive.org/download/JoshJones-BreakBottles-OriginalDemomp3/Josh-BreakBottles.mp3'],
 		    sprite: {
-			    blast: [4200, 5000]
+			    "36": [4200, 5000],
+          "37":[4500,5000]
 			  }
-		});
+		})
 
 
 		const onMIDISuccess = (midiAccess) => {
@@ -41,8 +45,8 @@ export default class Jampler extends React.Component {
     const onMIDIFailure = (error) =>{
       //  when we get a failed responsysex, run this code
       console.log( "No access to MIDI devices or your browsysexr doesn\'t support WebMIDI API. Please use WebMIDIAPIShim " + error)
-      return
     }
+
 
 
     const onMIDIMessage = (message) => {
@@ -50,13 +54,27 @@ export default class Jampler extends React.Component {
       //  this gives us our [command/channel, note, velocity] data.
     	// console.log ('MIDI data', data)
       if((data[0] == 144) && (data[1] < 52)){
-      	let previous_state = this.state
-      	sound.play('blast')
-	      return
+        let previous_state = this.state
+        this.state.note_on_set.add( data[1] ) 
+        this.state.player_ids[data[1]] = sound.play(String(data[1]))
       } 
-      if((data[0] == 128) && (data[2] == 0)){
-      	sound.stop()
+
+
+
+      if((data[0] == 144) && (data[1] == 64) && (data[2] == 64)){
+        console.log("Pedal on")
+
       }
+      if((data[0] == 144) && (data[1] == 64) && (data[2] == 0)){
+        console.log("Pedal off")
+
+      }
+      if((data[0] == 128) && (data[2] == 0)){
+      	sound.stop(this.state.player_ids[data[1]])
+        this.state.note_on_set.remove( data[1] ) 
+
+      }
+      // console.log(this.state.note_on_set.get())
     }
 
 
